@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 
+import "./styles/Graph.css"
+
 const Graph = () => {
     const [data, setData] = useState([]);
 
-    const MAX_SIZE = 1000;
+    const MAX_SIZE = 250;
     const MAX_VALUE = 2500;
-    const MIN_VALUE = 5;
+    const MIN_VALUE = 100;
 
     useEffect(() => {
         setData(generateData());
@@ -22,16 +24,13 @@ const Graph = () => {
         return data;
     }
 
-    console.log(data);
-
     const dataItems = data.map((number, index) => 
-        <div key={index}>
-            {number}
+        <div className='bar' key={index} style={{height: `${(number / MAX_VALUE) * 500}px`}}>
         </div>
     )
 
     return (
-        <div>
+        <div className='bars'>
             {dataItems}
         </div>
     )
