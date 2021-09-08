@@ -30,8 +30,13 @@ const Graph = () => {
     )
 
     return (
-        <div className='bars'>
-            {dataItems}
+        <div>
+            <div className='bars'>
+                {dataItems}
+            </div>
+            <button className='gen-button' onClick={() => setData(generateData())}>
+                Generate new Array
+            </button>
         </div>
     )
 }
