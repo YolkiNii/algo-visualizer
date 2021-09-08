@@ -1,9 +1,10 @@
 import './App.css';
+import Graph from './components/Graph';
 
 function App() {
   return (
     <div>
-      Algo-Visualizer
+      <Graph />
     </div>
   );
 }
