@@ -6,7 +6,7 @@ import "./styles/Graph.css"
 const Graph = () => {
     const [data, setData] = useState([]);
 
-    const MAX_SIZE = 50;
+    const MAX_SIZE = 10;
     const MAX_VALUE = 2500;
     const MIN_VALUE = 100;
 

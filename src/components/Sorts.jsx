@@ -33,7 +33,7 @@ const Sorts = ({ data, onChange }) => {
                 resolve(newData);
             }, 500)
 
-        })
+        });
     }
 
     const bubbleSort = async () => {
@@ -47,10 +47,24 @@ const Sorts = ({ data, onChange }) => {
         }
     }
 
+    const selectionSort = async () => {
+        for (let i = 0; i < scopeData.length - 1; i++) {
+            for (let j = i; j < scopeData.length; j++) {
+                if (scopeData[j].value < scopeData[i].value)  {
+                    let newData = await swap(j, i);
+                    onChange(newData);
+                }
+            }
+        }
+    }
+
     return (
         <div>
             <button onClick={() => bubbleSort()}>
                 Bubble Sort
+            </button>
+            <button onClick={() => selectionSort()}>
+                Selection Sort
             </button>
         </div>
     )
