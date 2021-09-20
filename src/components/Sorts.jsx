@@ -58,6 +58,17 @@ const Sorts = ({ data, onChange }) => {
         }
     }
 
+    const insertionSort = async () => {
+        for (let i = 1; i < scopeData.length; i++) {
+            for (let j = 0; j < i; j++) {
+                if (scopeData[i].value < scopeData[j].value) {
+                    let newData = await swap(i, j);
+                    onChange(newData);
+                }
+            }
+        }
+    }
+
     return (
         <div>
             <button onClick={() => bubbleSort()}>
@@ -65,6 +76,12 @@ const Sorts = ({ data, onChange }) => {
             </button>
             <button onClick={() => selectionSort()}>
                 Selection Sort
+            </button>
+            <button onClick={() => insertionSort()}>
+                Insertion Sort
+            </button>
+            <button>
+                Merge Sort
             </button>
         </div>
     )
