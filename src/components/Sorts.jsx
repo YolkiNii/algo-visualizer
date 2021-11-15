@@ -10,13 +10,13 @@ const Sorts = ({ data, onChange }) => {
         }
 
         scopeData = newData;
-        onChange(scopeData);
+        onChange(newData);
     }
 
     const swap = (i, j) => {
         changeBackground([i, j], 'blue');
 
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             let newData = [...scopeData];
             let temp;
 
@@ -118,7 +118,7 @@ const Sorts = ({ data, onChange }) => {
                 rightIndex++;
                 console.log("Merged: ", mainIndex);
             }
-            if (mainIndex == left)
+            if (mainIndex === left)
                 changeBackground([left], 'green');
 
             mainIndex++;
@@ -170,6 +170,126 @@ const Sorts = ({ data, onChange }) => {
         
     }
 
+    const quickChangeBackground = (indicies, background) => {
+        return new Promise(resolve => {
+            const copy = [...scopeData];
+
+            for (let i = 0; i < indicies.length; i++)
+                copy[indicies[i]] = {...copy[indicies[i]], background: background };
+
+            scopeData = copy;
+
+            onChange(copy);
+
+            resolve();
+        });
+
+    }
+
+    const quickSwap = (i, j) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                let temp;
+                const copy = [...scopeData];
+
+                copy[i] = {...copy[i], background: "gray"};
+                copy[j] = {...copy[j], background: "gray"};
+    
+                temp = copy[i];
+                copy[i] = copy[j];
+                copy[j] = temp;
+
+                scopeData = copy;
+
+                onChange(copy);
+                resolve();
+            }, 1000);
+
+        });
+
+    }
+
+    const quickEndSwap = (pivot, end) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                let temp;
+                const copy = [...scopeData];
+
+                copy[end] = {...copy[end], background: 'green'};
+                copy[pivot] = {...copy[pivot], background: 'gray'};
+    
+                temp = copy[pivot];
+                copy[pivot] = copy[end];
+                copy[end] = temp;
+
+                scopeData = copy;
+
+                onChange(copy);
+
+                resolve();
+            }, 1000);
+        })
+    }
+
+    const partition = async (start, end, dir, call) => {
+        let left = start;
+        let right = end;
+
+        console.log('Before pivot:', end, ' dir:', dir, ' call:', call, ':', scopeData);
+
+        await quickChangeBackground([end], 'red');
+
+        // start from left and look for left > array[end]
+        while (left < right) {
+            while (scopeData[left].value < scopeData[end].value && left < right)
+                left++;
+
+            while (scopeData[right].value >= scopeData[end].value && right > left)
+                right--;
+
+            // check if left < right
+            if(left < right) {
+                await quickChangeBackground([left, right], 'blue');
+                await quickSwap(left, right);
+                left++;
+                right--;
+            }   
+        }
+
+        if (left === right && scopeData[left].value < scopeData[end].value)
+            left++;
+
+        // swap pivot with left
+        await quickChangeBackground([left, end], 'blue');
+        await quickEndSwap(left, end);
+
+        console.log('After pivot:', left, ' dir:', dir, ' call:', call, ':', scopeData);
+
+        return left;
+    }
+
+    /*
+    Pivot will always be the end element
+    Reference: https://www.geeksforgeeks.org/quick-sort/
+    */
+    const quickSort = async (start, end, dir, call) => {
+        let pivotIndex;
+
+        if (start < end) {
+            // get pivot index
+            pivotIndex = await partition(start, end, dir, call);
+
+            // quicksort left and right partitions
+            quickSort(start, pivotIndex - 1, "left", call + 1);
+            quickSort(pivotIndex + 1, end, "right", call + 1);
+
+        }
+        else {
+            quickChangeBackground([end], 'green');
+        }
+   
+    }
+
     return (
         <div>
             <button onClick={() => bubbleSort()}>
@@ -183,6 +303,9 @@ const Sorts = ({ data, onChange }) => {
             </button>
             <button onClick={() => mergeSort()}>
                 Merge Sort (Iterative)
+            </button>
+            <button onClick={() => quickSort(0, scopeData.length - 1, "start", 0)}>
+                Quick Sort
             </button>
         </div>
     )
