@@ -170,7 +170,7 @@ const Sorts = ({ data, onChange }) => {
         
     }
 
-    const quickChangeBackground = (indicies, background) => {
+    const newChangeBackground = (indicies, background) => {
         return new Promise(resolve => {
             const copy = [...scopeData];
 
@@ -186,7 +186,7 @@ const Sorts = ({ data, onChange }) => {
 
     }
 
-    const quickSwap = (i, j) => {
+    const newSwap = (i, j) => {
         return new Promise(resolve => {
             setTimeout(() => {
                 let temp;
@@ -209,7 +209,7 @@ const Sorts = ({ data, onChange }) => {
 
     }
 
-    const quickEndSwap = (pivot, end) => {
+    const newEndSwap = (pivot, end) => {
         return new Promise(resolve => {
             setTimeout(() => {
                 let temp;
@@ -231,13 +231,11 @@ const Sorts = ({ data, onChange }) => {
         })
     }
 
-    const partition = async (start, end, dir, call) => {
+    const partition = async (start, end) => {
         let left = start;
         let right = end;
 
-        console.log('Before pivot:', end, ' dir:', dir, ' call:', call, ':', scopeData);
-
-        await quickChangeBackground([end], 'red');
+        await newChangeBackground([end], 'red');
 
         // start from left and look for left > array[end]
         while (left < right) {
@@ -249,8 +247,8 @@ const Sorts = ({ data, onChange }) => {
 
             // check if left < right
             if(left < right) {
-                await quickChangeBackground([left, right], 'blue');
-                await quickSwap(left, right);
+                await newChangeBackground([left, right], 'blue');
+                await newSwap(left, right);
                 left++;
                 right--;
             }   
@@ -260,10 +258,9 @@ const Sorts = ({ data, onChange }) => {
             left++;
 
         // swap pivot with left
-        await quickChangeBackground([left, end], 'blue');
-        await quickEndSwap(left, end);
+        await newChangeBackground([left, end], 'blue');
+        await newEndSwap(left, end);
 
-        console.log('After pivot:', left, ' dir:', dir, ' call:', call, ':', scopeData);
 
         return left;
     }
@@ -272,22 +269,84 @@ const Sorts = ({ data, onChange }) => {
     Pivot will always be the end element
     Reference: https://www.geeksforgeeks.org/quick-sort/
     */
-    const quickSort = async (start, end, dir, call) => {
+    const quickSort = async (start, end) => {
         let pivotIndex;
 
         if (start < end) {
             // get pivot index
-            pivotIndex = await partition(start, end, dir, call);
+            pivotIndex = await partition(start, end);
 
             // quicksort left and right partitions
-            quickSort(start, pivotIndex - 1, "left", call + 1);
-            quickSort(pivotIndex + 1, end, "right", call + 1);
+            quickSort(start, pivotIndex - 1);
+            quickSort(pivotIndex + 1, end);
 
         }
         else {
-            quickChangeBackground([end], 'green');
+         newChangeBackground([end], 'green');
         }
    
+    }
+
+    const delay = (milli) => {
+        return new Promise(resolve => {
+            setTimeout(() => resolve(), milli);
+        })
+    }
+
+    /*
+    Compares current root with left and right child, swapping largest as the new root.
+    Rather than pulling up greater values, think of this function as swapping down lesser values.
+    Reference: https://www.programiz.com/dsa/heap-sort
+    */
+    const heapify = async (size, root) => {
+        let newRoot = root;
+        const left = 2 * root + 1;
+        const right = 2 * root + 2;
+       
+        // highlight parent and child
+        await newChangeBackground([newRoot], 'red');
+
+        if (left < size)
+            await newChangeBackground([left], 'orange');
+
+        if (right < size)
+            await newChangeBackground([right], 'orange');
+
+        await delay(1000);
+
+        // check if we're in bound and if child is greater than root
+        if (left < size && scopeData[left].value > scopeData[newRoot].value)
+            newRoot = left;
+
+        if (right < size && scopeData[right].value > scopeData[newRoot].value)
+            newRoot = right;
+
+        if (left < size)
+            await newChangeBackground([left], 'gray');
+
+        if (right < size)
+            await newChangeBackground([right], 'gray');
+
+        await newChangeBackground([root], 'gray');
+
+        if (newRoot !== root) {
+            await newChangeBackground([newRoot, root], 'blue');
+            await newSwap(newRoot, root);
+            await heapify(size, newRoot);
+        }
+    }
+
+    const heapSort = async () => {
+        // heapify from first parent back to front to get initial greatest value
+        for (let i = scopeData.length / 2 - 1; i >= 0; i--)
+            await heapify(scopeData.length, i);
+
+        // swap greatest value(index 0) to the back of the array, then heapify remaining unsorted array
+        for (let i = scopeData.length - 1; i >= 0; i--) {
+            await newChangeBackground([0, i], 'blue');
+            await newEndSwap(i, 0);
+            await heapify(i, 0);
+        }
     }
 
     return (
@@ -304,8 +363,11 @@ const Sorts = ({ data, onChange }) => {
             <button onClick={() => mergeSort()}>
                 Merge Sort (Iterative)
             </button>
-            <button onClick={() => quickSort(0, scopeData.length - 1, "start", 0)}>
+            <button onClick={() => quickSort(0, scopeData.length - 1)}>
                 Quick Sort
+            </button>
+            <button onClick={() => heapSort()}>
+                Heap Sort
             </button>
         </div>
     )
